@@ -1,0 +1,98 @@
+name: CI
+run-name: Run CI 🚀
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+  lint-and-format:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Lint code
+        run: yarn run lint:check
+
+      - name: Format code
+        run: yarn run format:check
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests
+        run: yarn run test
+
+  post-comment:
+    if: ${{ github.event.pull_request.number }}
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Post workflow status as comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            The workflow run has completed with status: **${{ job.status }}**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
