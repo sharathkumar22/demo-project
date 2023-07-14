@@ -38,10 +38,10 @@ jobs:
           node-version: "18"
 
       - name: Lint code
-        run: yarn run lint:check >> $GITHUB_OUTPUT
+        run: yarn run lint:check
 
       - name: Check code formatting
-        run: yarn run format:check >> $GITHUB_OUTPUT
+        run: yarn run format:check
 
   test:
     needs: build
@@ -63,7 +63,7 @@ jobs:
           node-version: "18"
 
       - name: Run tests
-        run: yarn run test:coverage
+        run: yarn run test --coverage
 
       - name: "Report Coverage"
         if: always() # Also generate the report if tests are failing
